@@ -12,19 +12,4 @@
  For extensibility, the optionally provided 'intepret' is used to interpret 's₀'
   if it's not one of the above forms, and also for the sub-expressions in 's₀'.
 |#
-
-
-(define-syntax-rule '(if «condition-expr» «consequent-expr» «alternative-expr»)
-  (if «condition-expr» «consequent-expr» «alternative-expr»))
-
-#;(define-syntax-rule (+ «expr» ...))
-
-#;(define-syntax-rule (zero? «expr»))
-  
-  
-  
 (define (interpret₀ s₀ [interpret interpret₀]) s₀)
-
-
-'(if (zero? (+ 1 2)) (+ 3 4) (+ 5 6))
-

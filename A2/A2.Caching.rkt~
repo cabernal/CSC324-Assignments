@@ -52,9 +52,12 @@
 
 (define-syntax-rule 
   (define-cached («func-id» «param») «expr» ... )
-  (define «func-id»
+  (define («func-id» «param») 
     (caching
      (λ («param») «expr» ...))))
+
+
+
 
 (define-cached (fibonacci n)
   (if (< n 2)
