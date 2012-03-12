@@ -3,6 +3,8 @@
 (provide caching define-cached
          fibonacci)
 
+
+
 #| Return a version of unary function 'uf' that caches its return values
     so that repeated calls with the same argument use the cached value.
 
@@ -14,7 +16,15 @@
 
  The notion of equality used to compare arguments is 'equal?'.
 |#
-(define (caching uf) uf)
+(define (caching uf)
+  (define cache (make-hash))
+  (λ (arg) 
+    (if (hash-has-key? cache arg) 
+        (hash-ref cache arg)
+        (hash-set! cache arg (uf arg)))
+    (hash-ref cache arg)))
+
+
 
 
 #| [Remove this discussion before submitting].
@@ -29,9 +39,9 @@
   a fast version 'fibonacci₀'.
 |#
 (define (fibonacci₀ n)
-    (if (< n 2)
-        1
-        (+ (fibonacci₀ (- n 1)) (fibonacci₀ (- n 2)))))
+  (if (< n 2)
+      1
+      (+ (fibonacci₀ (- n 1)) (fibonacci₀ (- n 2)))))
 (define fibonacci₁ (caching fibonacci₀))
 #|
  For the insight needed to implement 'define-cached': define 'fibonacci₀' without
@@ -40,8 +50,14 @@
   any unary function defined in shorthand form.
 |#
 
+(define-syntax-rule 
+  (define-cached («func-id» «param») «expr» ... )
+  (define («func-id» «param») 
+    (caching
+     (λ («param») «expr» ...))))
 
-(define-syntax-rule (define-cached «» ...) (define «» ...))
+
+
 
 (define-cached (fibonacci n)
   (if (< n 2)
