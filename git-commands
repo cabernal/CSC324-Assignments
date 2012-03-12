@@ -1,0 +1,35 @@
+git rm -r cache/ # remove a given folder from a Git repo
+git init
+git add .
+git add file
+git status
+git clone
+git commit # This commits your files to your LOCAL repo, 
+             not the one on the server.
+git push # This "pushes" your committed changes up to the server.
+
+Tutorial: http://b.lesseverything.com/2008/3/25/got-git-howto-git-and-github
+
+Troubleshooting: http://help.github.com/linux-key-setup/
+		 http://help.github.com/troubleshooting-ssh/
+------------------------------------------------------------------
+
+Global setup:
+ Download and install Git
+  git config --global user.name "Your Name"
+  git config --global user.email camilobern@gmail.com
+        
+Next steps:
+  mkdir CSC209
+  cd CSC209
+  git init
+  touch README
+  git add README
+  git commit -m 'first commit'
+  git remote add origin git@github.com:camilobern/CSC209.git
+  git push origin master
+      
+Existing Git Repo?
+  cd existing_git_repo
+  git remote add origin git@github.com:camilobern/CSC209.git
+  git push origin master
