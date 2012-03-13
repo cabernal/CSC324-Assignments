@@ -14,17 +14,16 @@
 |#
 
 
-(define-syntax-rule '(if «condition-expr» «consequent-expr» «alternative-expr»)
-  (if «condition-expr» «consequent-expr» «alternative-expr»))
+(define (interpret₀ s₀ [interpret interpret₀])
+  (match s₀
+    [`(if ,cond ,then-expr ,else-expr)
+     (if (interpret₀ cond) (interpret₀ then-expr) (interpret₀ else-expr))]
+    [`(+ . ,expr) (apply + (map interpret₀ expr))]
+    [`(zero? ,expr) (zero? (interpret₀ expr))]
+    [default 
+      (if (number? default) default 
+          (interpret default))]))
 
-#;(define-syntax-rule (+ «expr» ...))
-
-#;(define-syntax-rule (zero? «expr»))
-  
-  
-  
-(define (interpret₀ s₀ [interpret interpret₀]) s₀)
-
-
-'(if (zero? (+ 1 2)) (+ 3 4) (+ 5 6))
+(interpret₀ '(if (zero? (+ 1 2)) (+ 3 4) (+ 5 6)))
+(interpret₀ '(+ 1 1 1 1 1 1 (if (zero? 1) 0 1)))
 
