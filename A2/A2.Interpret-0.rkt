@@ -27,3 +27,8 @@
 (interpret₀ '(if (zero? (+ 1 2)) (+ 3 4) (+ 5 6)))
 (interpret₀ '(+ 1 1 1 1 1 1 (if (zero? 1) 0 1)))
 
+
+(interpret₀ '(let ([+ (λ numeric-lists (apply map + numeric-lists))])
+  (if (zero? (random 2))
+      0
+      (+ '(324 247) '(1 2)))))

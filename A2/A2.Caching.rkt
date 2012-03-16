@@ -38,11 +38,12 @@
  Convince yourself by a tracing diagram that the following won't make 'fibonacci₁'
   a fast version 'fibonacci₀'.
 |#
-(define (fibonacci₀ n)
+(define fibonacci₀
+  (caching (λ(n)
   (if (< n 2)
       1
-      (+ (fibonacci₀ (- n 1)) (fibonacci₀ (- n 2)))))
-(define fibonacci₁ (caching fibonacci₀))
+      (+ (fibonacci₀ (- n 1)) (fibonacci₀ (- n 2)))))))
+#;(define fibonacci₁ (caching fibonacci₀))
 #|
  For the insight needed to implement 'define-cached': define 'fibonacci₀' without
   the shorthand create-and-name syntax, and insert a *single* call to 'caching'

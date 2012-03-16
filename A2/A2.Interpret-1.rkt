@@ -1,7 +1,9 @@
 #lang racket
-
+#| g0bernal g1amogse |#
 (provide interpret
          Tree Environment Closure)
+
+#| partners: g0bernal , g1amogse |#
 
 #| The Semantic/Memory/Runtime/Evaluation Model is a Tree.
 
@@ -63,7 +65,7 @@
    Represented by a hash-table of symbol→value.
 |#
 (struct Environment Tree
-  (bindings)
+  (bindings) ;hash table contaning keys as identifiers
   #:transparent)
 
 #| Closures.
@@ -113,10 +115,22 @@
 |#
 
 #| Value for 'define'd identifiers whose define has not yet executed. |#
-(define undefined (letrec ([u u] u)))
+(define undefined (letrec ([u u]) u))
 
 #| Function that when called repeatedly returns 0, 1, 2, ... . |#
-(define uid! (error))
+(define (uid!)
+  (define c -1) 
+  (λ () (set! c (+ 1 c)) c))
+
+
+
+#| Global count for id generation|#
+(define new-id (uid!))
+
+#| Put all define ids in given environment.|#
+#;(define (allocate-defines expr env)
+    
+    )
 
 #| Return the value of source code s-expression 'expr' from the "Language
     of Expressions to Interpret", where all free/open identifiers [except
@@ -124,5 +138,73 @@
     in Environment 'env'. If the result is a Closure, just return that
     [as opposed to a Racket <procedure>].
 |#
-(define (interpret expr env)
-  (error))
+
+(define (interpret expr env)  
+  (match expr
+    ; Assume at least one parameter given.
+    [`(λ ,«parameter-id» . ,«body-expr»)
+     (Closure env '() «parameter-id» «body-expr» (new-id))]
+    
+    [`(set! ,«id» ,«expr»)
+     (define eval-expr (interpret «expr» env))
+     (if (hash-has-key? (Environment-bindings env) «id» «expr»)
+         (hash-set! (Environment-bindings env) «id» «expr»)
+         (if (Tree-parent env)
+             (interpret `(set! ,«id» ,«expr») (Tree-parent (Tree-parent env)))
+             (error "reference to an identifier before its definition")))]
+    
+    [`(define ,«id» ,«expr»)
+     
+
+     (hash-set! (Environment-bindings env) «id» (interpret «expr» env))]
+    
+    [`(,«closure-expr» . ,«argument-expr»)
+     
+
+     
+     ;Get closure and attach it to current environment.
+     (define called-closure (interpret «closure-expr» env))
+     
+     (set-Tree-children! env (append (Tree-children env) (list called-closure)))
+     
+     ; Create environment based on closure's and argument expr
+     ;    * Parent is curently called closure.
+     ;    * No children, yet.
+     ;    * Hash table to represent bindings.
+     
+     (define parameters (Closure-parameters called-closure))
+     (define local-env (Environment called-closure '() (make-hash)))
+     (define lst-vars (filter-map (λ (one-expr)
+                                    (match one-expr
+                                      [`(define ,var . ,rest) var]
+                                      [_ #f])) (Closure-body called-closure)))
+     
+     (map (λ(param) 
+            (hash-set! 
+             (Environment-bindings local-env) param undefined))  lst-vars)
+
+     (map (λ (param arg) 
+            (hash-set! 
+             (Environment-bindings local-env) param (interpret arg env))) parameters «argument-expr»)
+     
+     (set-Tree-children! called-closure (append (Tree-children called-closure) (list local-env)))
+          
+     (last (map (λ(x) (interpret x local-env)) (Closure-body called-closure)))]
+    
+    [`,«identifier» 
+     ;look for «identifier»  in ancestor environments (even environemnts)
+     (if (number? «identifier» ) «identifier» 
+         (if (hash-has-key? (Environment-bindings env) «identifier»)
+             (hash-ref (Environment-bindings env) «identifier» )
+             (when (Tree-parent env)
+               (interpret «identifier» (Tree-parent (Tree-parent env))))))]))
+
+;Working test
+#;(define env (Environment #f '() (make-hash)))
+#;(define expr '((λ() (define f (λ (x) (λ () x))) (define g (f 324)) (g))))
+#;(interpret expr env)
+
+
+
+
+
